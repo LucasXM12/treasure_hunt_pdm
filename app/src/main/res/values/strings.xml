@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Treasure Hunt</string>
+
+    <string name="btnScan">Scan</string>
+    <string name="btnGetData">Get data</string>
+    <string name="btnLocation">Location</string>
+
+    <string name="txtHint">Hint: </string>
+
+    <string name="contentDescription">Image hint</string>
 </resources>

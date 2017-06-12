@@ -1,7 +1,12 @@
 package com.a15182.lucas.treasure_hunt_pdm;
 
 import android.*;
+
+import java.text.*;
+import java.util.*;
+
 import android.os.*;
+import android.app.*;
 import android.view.*;
 import android.widget.*;
 import android.content.*;
@@ -12,35 +17,44 @@ import android.support.v4.app.*;
 import android.support.v7.app.*;
 import android.support.annotation.*;
 
-import com.google.zxing.*;
-
 import me.dm7.barcodescanner.zxing.*;
+
+import com.google.zxing.*;
+import com.a15182.lucas.treasure_hunt_pdm.utils.*;
 
 public class MainActivity extends AppCompatActivity {
 
+    private final String SERVER_URL = "http://www.slmm.com.br/cotuca/restCotuca17.php";
+
     private final int GPS_PERMISSION = 666;
     private final int CAMERA_PERMISSION = 667;
+    private final int INTERNET_PERMISSION = 668;
 
-    private String qrCodeRead;
+    private String qrCodeRead = "8";
     private ZXingScannerView scannerView;
 
-    private TextView txtCoords;
-
+    private Double latitude;
+    private Double longitude;
     private LocationManager locationManager;
     private LocationListener locationListener;
+
+    private TextView txtHint;
+    private ImageView imgImage;
+
+    private GetJson downloader;
+    private ProgressDialog loadMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.txtCoords = (TextView) findViewById(R.id.txtCoords);
-
         this.locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         this.locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                txtCoords.append("\n" + location.getLatitude() + ", " + location.getLongitude());
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
             }
 
             @Override
@@ -56,9 +70,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
             }
         };
+
+        this.txtHint = (TextView) findViewById(R.id.txtHint);
+        this.imgImage = (ImageView) findViewById(R.id.imgImage);
+
+        this.downloader = new GetJson();
     }
 
-    public void onClickScan(View v) {
+    public void onClickScan(View view) {
         if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) !=
                 PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(MainActivity.this,
@@ -103,6 +122,19 @@ public class MainActivity extends AppCompatActivity {
         this.locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 2, this.locationListener);
     }
 
+    public void onClickGetData(View view) {
+        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.INTERNET) !=
+                PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.INTERNET}, INTERNET_PERMISSION);
+        else
+            startScanner();
+    }
+
+    public void startDownload() {
+        this.downloader.execute();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -117,6 +149,11 @@ public class MainActivity extends AppCompatActivity {
             case GPS_PERMISSION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     startGPS();
+                break;
+
+            case INTERNET_PERMISSION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    startDownload();
                 break;
         }
     }
@@ -147,6 +184,40 @@ public class MainActivity extends AppCompatActivity {
 
             setContentView(R.layout.activity_main);
             scannerView.stopCamera();
+        }
+    }
+
+    private class GetJson extends AsyncTask<Void, Void, Hint> {
+        @Override
+        protected void onPreExecute() {
+            loadMessage = ProgressDialog.show(MainActivity.this, "Por favor aguarde...", "Recuperando informações do servidor...");
+        }
+
+        @Override
+        protected Hint doInBackground(Void... params) {
+            HashMap<String, String> payload = new HashMap<>();
+
+            payload.put("action", "get");
+            payload.put("lat", latitude.toString());
+            payload.put("lon", longitude.toString());
+            payload.put("ra", "15182");
+
+            payload.put("id", qrCodeRead);
+
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = new Date();
+
+            payload.put("dt", dateFormat.format(date).toString());
+
+            return (new Utils()).getInfo(SERVER_URL, payload);
+        }
+
+        @Override
+        protected void onPostExecute(Hint hint) {
+            txtHint.setText(R.string.txtHint + hint.getDica().split("Ok")[0]);
+            imgImage.setImageBitmap(hint.getImage());
+
+            loadMessage.dismiss();
         }
     }
 }

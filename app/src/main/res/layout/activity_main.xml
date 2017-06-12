@@ -7,43 +7,67 @@
     tools:context="com.a15182.lucas.treasure_hunt_pdm.MainActivity">
 
     <Button
-        android:id="@+id/btnScan"
+        android:text="@string/btnGetData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="19dp"
-        android:onClick="onClickScan"
-        android:text="Scan"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_constraintBottom_creator="1"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintRight_creator="1" />
-
-    <TextView
-        android:id="@+id/txtCoords"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="lat   long"
+        android:id="@+id/btnGetData"
+        android:onClick="onClickGetData (MainActivity)"
         tools:layout_constraintRight_creator="1"
-        tools:layout_constraintLeft_creator="1" />
+        tools:layout_constraintBottom_creator="1"
+        app:layout_constraintBottom_toTopOf="@+id/btnLocation"
+        app:layout_constraintRight_toRightOf="@+id/btnLocation"
+        android:layout_marginBottom="16dp" />
 
     <Button
-        android:id="@+id/btnLocation"
+        android:text="@string/btnLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onClickLocation"
-        android:text="Location"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_constraintTop_creator="1"
+        android:id="@+id/btnLocation"
+        android:onClick="onClickLocation (MainActivity)"
+        tools:layout_constraintBottom_creator="1"
+        app:layout_constraintBottom_toTopOf="@+id/btnScan"
+        tools:layout_constraintLeft_creator="1"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintLeft_toLeftOf="@+id/btnScan" />
+
+    <Button
+        android:text="@string/btnScan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnScan"
+        android:onClick="onClickScan (MainActivity)"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintBottom_creator="1"
-        tools:layout_constraintLeft_creator="1" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout_constraintLeft_creator="1"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtHint"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/txtHint" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:srcCompat="@mipmap/ic_map"
+        android:id="@+id/imgImage"
+        android:contentDescription="@string/contentDescription"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="138dp"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </android.support.constraint.ConstraintLayout>
