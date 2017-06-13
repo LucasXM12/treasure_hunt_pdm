@@ -33,8 +33,8 @@ public class MainActivity extends AppCompatActivity {
     private String qrCodeRead = "8";
     private ZXingScannerView scannerView;
 
-    private Double latitude;
-    private Double longitude;
+    private double latitude;
+    private double longitude;
     private LocationManager locationManager;
     private LocationListener locationListener;
 
@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.INTERNET}, INTERNET_PERMISSION);
         else
-            startScanner();
+            startDownload();
     }
 
     public void startDownload() {
@@ -190,21 +190,22 @@ public class MainActivity extends AppCompatActivity {
     private class GetJson extends AsyncTask<Void, Void, Hint> {
         @Override
         protected void onPreExecute() {
-            loadMessage = ProgressDialog.show(MainActivity.this, "Por favor aguarde...", "Recuperando informações do servidor...");
+            loadMessage = ProgressDialog.show(MainActivity.this, "Por favor aguarde...",
+                    "Recuperando informações do servidor...");
         }
 
         @Override
         protected Hint doInBackground(Void... params) {
             HashMap<String, String> payload = new HashMap<>();
 
+            payload.put("lat", (new Double(latitude)).toString());
+            payload.put("lon", (new Double(longitude)).toString());
+            payload.put("id", qrCodeRead);
             payload.put("action", "get");
-            payload.put("lat", latitude.toString());
-            payload.put("lon", longitude.toString());
             payload.put("ra", "15182");
 
-            payload.put("id", qrCodeRead);
-
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT-3:00"));
             Date date = new Date();
 
             payload.put("dt", dateFormat.format(date).toString());
