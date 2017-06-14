@@ -1,58 +1,38 @@
 package com.a15182.lucas.treasure_hunt_pdm.utils;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
+
+import org.apache.http.*;
+import org.apache.http.client.*;
+import org.apache.http.impl.client.*;
+import org.apache.http.client.entity.*;
+import org.apache.http.client.methods.*;
 
 import android.support.annotation.*;
 
 public class NetworkUtils {
 
     @Nullable
-    public static String getJSONFromAPI(String url, @NonNull HashMap<String, String> payload) {
+    public static String getJSONFromAPI(String url, @NonNull List<NameValuePair> payload) {
+        HttpPost httpPost = new HttpPost(url);
+        HttpClient httpClient = new DefaultHttpClient();
+
+        String ret = null;
+
         try {
-            int respCod;
-            InputStream is;
-            URL apiEnd = new URL(url);
-            HttpURLConnection connection;
+            httpPost.setEntity(new UrlEncodedFormEntity(payload));
 
-            connection = (HttpURLConnection) apiEnd.openConnection();
-            connection.setDoOutput(true);
+            HttpResponse response = httpClient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
 
-            connection.setRequestProperty("action", payload.get("action"));
-            connection.setRequestProperty("lat", payload.get("lat"));
-            connection.setRequestProperty("lon", payload.get("lon"));
-            connection.setRequestProperty("ra", payload.get("ra"));
-            connection.setRequestProperty("dt", payload.get("dt"));
-            connection.setRequestProperty("id", payload.get("id"));
-
-            connection.setRequestMethod("PUT");
-
-            connection.setReadTimeout(5000);
-            connection.setConnectTimeout(5000);
-
-            connection.connect();
-
-            respCod = connection.getResponseCode();
-
-            if (respCod < HttpURLConnection.HTTP_BAD_REQUEST)
-                is = connection.getInputStream();
-            else
-                is = connection.getErrorStream();
-
-            String ret = inputStreamToString(is);
-            is.close();
-
-            connection.disconnect();
-
-            return ret;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            if (entity != null)
+                ret = inputStreamToString(entity.getContent());
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
-        return null;
+        return ret;
     }
 
     @NonNull
@@ -72,6 +52,7 @@ public class NetworkUtils {
             e.printStackTrace();
         }
 
-        return buffer.toString();
+        String ret = buffer.toString();
+        return ret;
     }
 }

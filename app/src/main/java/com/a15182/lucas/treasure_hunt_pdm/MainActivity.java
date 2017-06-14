@@ -1,10 +1,9 @@
 package com.a15182.lucas.treasure_hunt_pdm;
 
-import android.*;
-
 import java.text.*;
 import java.util.*;
 
+import android.*;
 import android.os.*;
 import android.app.*;
 import android.view.*;
@@ -17,9 +16,13 @@ import android.support.v4.app.*;
 import android.support.v7.app.*;
 import android.support.annotation.*;
 
-import me.dm7.barcodescanner.zxing.*;
+import org.apache.http.*;
+import org.apache.http.message.*;
 
 import com.google.zxing.*;
+
+import me.dm7.barcodescanner.zxing.*;
+
 import com.a15182.lucas.treasure_hunt_pdm.utils.*;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private final int CAMERA_PERMISSION = 667;
     private final int INTERNET_PERMISSION = 668;
 
-    private String qrCodeRead = "8";
+    private String qrCodeRead;
     private ZXingScannerView scannerView;
 
     private double latitude;
@@ -38,10 +41,9 @@ public class MainActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private LocationListener locationListener;
 
+    private ImageView image;
     private TextView txtHint;
-    private ImageView imgImage;
 
-    private GetJson downloader;
     private ProgressDialog loadMessage;
 
     @Override
@@ -72,9 +74,7 @@ public class MainActivity extends AppCompatActivity {
         };
 
         this.txtHint = (TextView) findViewById(R.id.txtHint);
-        this.imgImage = (ImageView) findViewById(R.id.imgImage);
-
-        this.downloader = new GetJson();
+        this.image = (ImageView) findViewById(R.id.imageView);
     }
 
     public void onClickScan(View view) {
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                         PackageManager.PERMISSION_GRANTED)
             return;
 
-        this.locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 2, this.locationListener);
+        this.locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 2, this.locationListener);
     }
 
     public void onClickGetData(View view) {
@@ -132,7 +132,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startDownload() {
-        this.downloader.execute();
+        if (qrCodeRead != null)
+            new GetJson().execute();
+        else
+            Toast.makeText(MainActivity.this, "Escaneie o código QR primeiro!!!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -180,10 +183,10 @@ public class MainActivity extends AppCompatActivity {
         public void handleResult(Result result) {
             qrCodeRead = result.getText();
 
-            Toast.makeText(MainActivity.this, qrCodeRead, Toast.LENGTH_SHORT).show();
-
             setContentView(R.layout.activity_main);
             scannerView.stopCamera();
+
+            Toast.makeText(MainActivity.this, qrCodeRead, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -192,31 +195,47 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             loadMessage = ProgressDialog.show(MainActivity.this, "Por favor aguarde...",
                     "Recuperando informações do servidor...");
+
+            Toast.makeText(MainActivity.this, "lat: " + latitude + ", long: " + longitude, Toast.LENGTH_SHORT).show();
         }
 
         @Override
         protected Hint doInBackground(Void... params) {
-            HashMap<String, String> payload = new HashMap<>();
+            List<NameValuePair> payload = new ArrayList<NameValuePair>();
 
-            payload.put("lat", (new Double(latitude)).toString());
-            payload.put("lon", (new Double(longitude)).toString());
-            payload.put("id", qrCodeRead);
-            payload.put("action", "get");
-            payload.put("ra", "15182");
+            payload.add(new BasicNameValuePair("lat", (new Double(latitude)).toString()));
+            payload.add(new BasicNameValuePair("lon", (new Double(longitude)).toString()));
 
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT-3:00"));
             Date date = new Date();
+            payload.add(new BasicNameValuePair("dt", dateFormat.format(date).toString()));
 
-            payload.put("dt", dateFormat.format(date).toString());
+            payload.add(new BasicNameValuePair("id", qrCodeRead));
+            payload.add(new BasicNameValuePair("action", "get"));
+            payload.add(new BasicNameValuePair("ra", "06660"));
 
-            return (new Utils()).getInfo(SERVER_URL, payload);
+            return Utils.getInfo(SERVER_URL, payload);
         }
 
         @Override
         protected void onPostExecute(Hint hint) {
-            txtHint.setText(R.string.txtHint + hint.getDica().split("Ok")[0]);
-            imgImage.setImageBitmap(hint.getImage());
+            if (hint != null && hint.getImage() != null) {
+                synchronized (txtHint) {
+                    txtHint.setText(getResources().getText(R.string.txtHint) + " " +
+                            hint.getDica().split("Ok")[0]);
+
+                    Toast.makeText(MainActivity.this, txtHint.getText(), Toast.LENGTH_SHORT).show();
+                }
+
+                synchronized (image) {
+                    image.setImageBitmap(hint.getImage());
+                }
+            } else
+                Toast.makeText(MainActivity.this, "Erro ao recuperar dados do servidor!!!",
+                        Toast.LENGTH_SHORT).show();
+
+            qrCodeRead = null;
 
             loadMessage.dismiss();
         }

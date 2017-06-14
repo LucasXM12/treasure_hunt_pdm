@@ -7,35 +7,37 @@
     tools:context="com.a15182.lucas.treasure_hunt_pdm.MainActivity">
 
     <Button
-        android:text="@string/btnGetData"
+        android:id="@+id/btnGetData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/btnGetData"
         android:onClick="onClickGetData"
+        android:text="@string/btnGetData"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintBottom_creator="1"
-        app:layout_constraintBottom_toTopOf="@+id/btnLocation"
-        app:layout_constraintRight_toRightOf="@+id/btnLocation"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintRight_toRightOf="parent"
         android:layout_marginBottom="16dp" />
 
     <Button
-        android:text="@string/btnLocation"
+        android:id="@+id/btnLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/btnLocation"
         android:onClick="onClickLocation"
+        android:text="@string/btnLocation"
         tools:layout_constraintBottom_creator="1"
-        app:layout_constraintBottom_toTopOf="@+id/btnScan"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_constraintLeft_creator="1"
         android:layout_marginBottom="16dp"
-        app:layout_constraintLeft_toLeftOf="@+id/btnScan" />
+        app:layout_constraintLeft_toLeftOf="parent" />
 
     <Button
-        android:text="@string/btnScan"
+        android:id="@+id/btnScan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/btnScan"
         android:onClick="onClickScan"
+        android:text="@string/btnScan"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintBottom_creator="1"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -45,29 +47,39 @@
         app:layout_constraintLeft_toLeftOf="parent" />
 
     <TextView
+        android:id="@+id/txtHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/txtHint"
-        tools:layout_constraintTop_creator="1"
-        tools:layout_constraintRight_creator="1"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_constraintLeft_creator="1"
+        android:layout_marginTop="16dp"
+        android:text="@string/txtHint"
+        android:textSize="30sp"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1"
         tools:text="@string/txtHint" />
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        app:srcCompat="@mipmap/ic_map"
-        android:id="@+id/imgImage"
-        android:contentDescription="@string/contentDescription"
-        tools:layout_constraintTop_creator="1"
+    <FrameLayout
+        android:layout_height="350dp"
         tools:layout_constraintRight_creator="1"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="138dp"
         tools:layout_constraintLeft_creator="1"
+        android:layout_marginBottom="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_width="350dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnScan"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/txtHint">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:srcCompat="@android:color/holo_blue_light" />
+    </FrameLayout>
 
 </android.support.constraint.ConstraintLayout>
