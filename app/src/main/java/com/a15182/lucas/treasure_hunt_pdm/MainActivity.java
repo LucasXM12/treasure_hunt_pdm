@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private final int CAMERA_PERMISSION = 667;
     private final int INTERNET_PERMISSION = 668;
 
-    private String qrCodeRead;
+    private String qrCodeRead = "11";
     private ZXingScannerView scannerView;
 
     private double latitude;
@@ -41,8 +41,11 @@ public class MainActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private LocationListener locationListener;
 
+    private TextView raIn;
+    private TextView hintTxt;
     private ImageView image;
-    private TextView txtHint;
+
+    private String ra;
 
     private ProgressDialog loadMessage;
 
@@ -73,28 +76,12 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        this.txtHint = (TextView) findViewById(R.id.txtHint);
+        this.raIn = (TextView) findViewById(R.id.edtRa);
+        this.hintTxt = (TextView) findViewById(R.id.txtHint);
         this.image = (ImageView) findViewById(R.id.imageView);
     }
 
     public void onClickScan(View view) {
-        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) !=
-                PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION);
-        else
-            startScanner();
-    }
-
-    public void startScanner() {
-        this.scannerView = new ZXingScannerView(MainActivity.this);
-        this.scannerView.setResultHandler(new ZXingScannerResultHandler());
-
-        setContentView(this.scannerView);
-        this.scannerView.startCamera();
-    }
-
-    public void onClickLocation(View view) {
         if (ActivityCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
 
@@ -108,6 +95,21 @@ public class MainActivity extends AppCompatActivity {
                     Manifest.permission.INTERNET}, GPS_PERMISSION);
         else
             startGPS();
+
+        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) !=
+                PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION);
+        } else
+            startScanner();
+    }
+
+    public void startScanner() {
+        this.scannerView = new ZXingScannerView(MainActivity.this);
+        this.scannerView.setResultHandler(new ZXingScannerResultHandler());
+
+        setContentView(this.scannerView);
+        this.scannerView.startCamera();
     }
 
     private void startGPS() {
@@ -122,16 +124,9 @@ public class MainActivity extends AppCompatActivity {
         this.locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 2, this.locationListener);
     }
 
-    public void onClickGetData(View view) {
-        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.INTERNET) !=
-                PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{Manifest.permission.INTERNET}, INTERNET_PERMISSION);
-        else
-            startDownload();
-    }
-
     public void startDownload() {
+        this.ra = raIn.getText().toString();
+
         if (qrCodeRead != null)
             new GetJson().execute();
         else
@@ -187,6 +182,13 @@ public class MainActivity extends AppCompatActivity {
             scannerView.stopCamera();
 
             Toast.makeText(MainActivity.this, qrCodeRead, Toast.LENGTH_SHORT).show();
+
+            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.INTERNET) !=
+                    PackageManager.PERMISSION_GRANTED)
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.INTERNET}, INTERNET_PERMISSION);
+            else
+                startDownload();
         }
     }
 
@@ -213,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
             payload.add(new BasicNameValuePair("id", qrCodeRead));
             payload.add(new BasicNameValuePair("action", "get"));
-            payload.add(new BasicNameValuePair("ra", "06660"));
+            payload.add(new BasicNameValuePair("ra", ra));
 
             return Utils.getInfo(SERVER_URL, payload);
         }
@@ -221,16 +223,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Hint hint) {
             if (hint != null && hint.getImage() != null) {
-                synchronized (txtHint) {
-                    txtHint.setText(getResources().getText(R.string.txtHint) + " " +
-                            hint.getDica().split("Ok")[0]);
+                MainActivity.this.hintTxt.setText(getResources().getText(R.string.txtHint) + " " +
+                        hint.getDica().split("Ok")[0]);
 
-                    Toast.makeText(MainActivity.this, txtHint.getText(), Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(MainActivity.this, MainActivity.this.hintTxt.getText(), Toast.LENGTH_SHORT).show();
 
-                synchronized (image) {
-                    image.setImageBitmap(hint.getImage());
-                }
+                image.setImageBitmap(hint.getImage());
             } else
                 Toast.makeText(MainActivity.this, "Erro ao recuperar dados do servidor!!!",
                         Toast.LENGTH_SHORT).show();
