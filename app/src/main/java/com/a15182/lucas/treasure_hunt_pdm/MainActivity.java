@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                 ((TextView) findViewById(R.id.txtHint)).setText(getResources().getText(R.string.txtHint) + " " +
                         hint.getDica().split("Ok")[0]);
 
-                Toast.makeText(MainActivity.this, MainActivity.this.hintTxt.getText(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, hint.getDica().split("Ok")[0], Toast.LENGTH_SHORT).show();
 
                 ((ImageView) findViewById(R.id.imageView)).setImageBitmap(hint.getImage());
             } else
