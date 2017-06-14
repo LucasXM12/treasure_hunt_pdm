@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private final int CAMERA_PERMISSION = 667;
     private final int INTERNET_PERMISSION = 668;
 
-    private String qrCodeRead = "11";
+    private String qrCodeRead;
     private ZXingScannerView scannerView;
 
     private double latitude;
@@ -42,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private LocationListener locationListener;
 
     private TextView raIn;
-    private TextView hintTxt;
-    private ImageView image;
 
     private String ra;
 
@@ -77,8 +75,6 @@ public class MainActivity extends AppCompatActivity {
         };
 
         this.raIn = (TextView) findViewById(R.id.edtRa);
-        this.hintTxt = (TextView) findViewById(R.id.txtHint);
-        this.image = (ImageView) findViewById(R.id.imageView);
     }
 
     public void onClickScan(View view) {
@@ -223,12 +219,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Hint hint) {
             if (hint != null && hint.getImage() != null) {
-                MainActivity.this.hintTxt.setText(getResources().getText(R.string.txtHint) + " " +
+                ((TextView) findViewById(R.id.txtHint)).setText(getResources().getText(R.string.txtHint) + " " +
                         hint.getDica().split("Ok")[0]);
 
                 Toast.makeText(MainActivity.this, MainActivity.this.hintTxt.getText(), Toast.LENGTH_SHORT).show();
 
-                image.setImageBitmap(hint.getImage());
+                ((ImageView) findViewById(R.id.imageView)).setImageBitmap(hint.getImage());
             } else
                 Toast.makeText(MainActivity.this, "Erro ao recuperar dados do servidor!!!",
                         Toast.LENGTH_SHORT).show();
